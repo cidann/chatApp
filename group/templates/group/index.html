@@ -1,0 +1,92 @@
+{%extends 'group/layout.html'%}
+{%load static%}
+{%block import%}
+  <script src="{%static 'group/csrf_url.js'%}"></script>
+{%endblock%}
+{%block body%} 
+    <script>
+      document.addEventListener('DOMContentLoaded',()=>{
+        let joinSocket=new WebSocket(
+              'ws://'
+              + window.location.host
+              + '/join'
+              );
+        
+        joinSocket.onmessage=(event)=>{
+          let data=JSON.parse(event.data);
+          if(data.status === 'removed' || data.status === 'reject')
+            document.querySelector(`[data-id="${data.groupID}"]`).innerHTML='join';
+          else if(data.status === 'joined' || data.status === 'accept')
+            document.querySelector(`[data-id="${data.groupID}"]`).innerHTML='leave';
+          else if(data.status === 'pending')
+            document.querySelector(`[data-id="${data.groupID}"]`).innerHTML='pending';
+          else if(data.status ==='passwordTrue'){
+            let passwordContainer=document.querySelector(`#group_${data.groupID}`).querySelector('.passwordContainer');
+            let success=document.createElement('span');
+            success.className='sucess';
+            success.innerHTML='Correct Password';
+            passwordContainer.querySelector('span').replaceWith(success);
+          }
+          else if(data.status==='passwordFalse'){
+            let passwordContainer=document.querySelector(`#group_${data.groupID}`).querySelector('.passwordContainer');
+            let warning=document.createElement('span');
+            warning.className='warning';
+            warning.innerHTML='Wrong Password';
+            passwordContainer.querySelector('span').replaceWith(warning);
+          }
+        }
+        let joinButtons=document.querySelectorAll('.joinButton')
+        joinButtons.forEach(join=>{
+          if(join){
+            join.onclick=()=>{
+              let passwordInput=join.closest('.card-body').querySelector('.passwordInput');
+              if(passwordInput)
+                password=passwordInput.value;
+              else
+                password='';
+              joinSocket.send(JSON.stringify({
+                'groupID':join.dataset.id,
+                'password':password
+              }))
+            }
+          }
+        })
+
+        
+      })
+    </script>
+    {%if super%}
+      <h2>Super User of:</h2>
+      <div class="row">
+        {%for group in super%}
+          {%include 'group/groupDisplay.html'%}    
+        {%endfor%}
+      </div>
+      <hr>
+    {%endif%}
+    {%if member%}
+      <h2>Member of:</h2>
+      <div class="row">
+        {%for group in member%}
+          {%include 'group/groupDisplay.html'%}    
+        {%endfor%}
+      </div>
+      <hr>
+    {%endif%}
+    {%if nonMember%}
+      <div class="row">
+        {%for group in nonMember%}
+          {%include 'group/groupDisplay.html'%}    
+        {%endfor%}
+      </div>
+      <hr>
+    {%endif%}
+    {%if all%}
+      <div class="row">
+        {%for group in all%}
+          {%include 'group/groupDisplay.html'%}    
+        {%endfor%}
+      </div>
+      <hr>
+    {%endif%}
+{%endblock%}

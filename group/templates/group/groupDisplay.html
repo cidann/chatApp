@@ -1,0 +1,28 @@
+{%load manyToManyHelp%}
+<div class="col-4 mt-4 ">
+  <div class="card" id="group_{{group.id}}">
+    <div class="card-body">
+      <h5 class="card-title">{{group.name}}</h5>
+      <p class="card-text description">{{group.description}}</p>
+      {%if group|membershipStatus:user.id in 'super member'%}
+        <div class="passwordContainer"></div>
+        <button data-id="{{group.id}}" data-private="{{group.private}}" class="joinButton btn btn-primary">leave</button>
+        <a href="{%url 'group' group.id%}" class="btn btn-primary">View Chat</a>
+      {%elif group|membershipStatus:user.id in 'pending'%}
+        <div class="passwordContainer"></div>
+        <button data-id="{{group.id}}" data-private="{{group.private}}" class="joinButton btn btn-primary">pending</button>
+        <a href="{%url 'group' group.id%}" class="btn btn-primary">View Chat</a>
+      {%else%}
+        {%if user.is_authenticated%}
+          <div class="passwordContainer">{%if group.passwordEnabled == 'on'%}<input type="password" class="form-control passwordInput" placeholder="Group Password"><span></span>{%endif%}</div>
+          <button data-id="{{group.id}}" data-private="{{group.private}}" class="joinButton btn btn-primary">join</button>
+        {%endif%}
+        {%if group.private == 'off'%}
+          <a href="{%url 'group' group.id%}" class="btn btn-primary">View Chat</a>
+        {%else%}
+          <a href="{%url 'group' group.id%}" class="warning">private group</a>
+        {%endif%}
+      {%endif%}
+    </div>
+  </div>
+</div>

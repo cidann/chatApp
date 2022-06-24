@@ -1,0 +1,313 @@
+{%extends 'group/layout.html'%}
+{%load static%}
+{%block import%}
+    <script src="{% static 'group/csrf_url.js'%}"></script>
+{%endblock%}
+{%block body%}
+    <script>
+        document.addEventListener('DOMContentLoaded',()=>{
+            fetch("{%url 'messages'%}?"+new URLSearchParams({'groupID':'{{group.id}}'}))
+            .then(response=>response.json())
+            .then(data=>{
+                data.forEach(messageData=>{
+                    loadMessage(messageData.sender,messageData.message,messageData.messageType);
+                }) 
+                BottomScroll(messageBoard);
+            })
+            const chatSocket = new WebSocket(
+                'ws://'
+                + window.location.host
+                + '/group/'
+                + '{{group.id}}'
+            );
+            {%if user.is_authenticated%}
+            let messageBoard=document.querySelector('#messageBoard')
+            let messageInput=document.querySelector('#messageInput')
+            messageInput.onkeydown=event=>{
+                if(event.key==='Enter' && messageInput.value!=''){
+                    chatSocket.send(JSON.stringify({
+                        'messageType':'message',
+                        'action':'add',
+                        'message':messageInput.value
+                    }))
+                    BottomScroll(messageBoard);
+                    messageInput.value='';
+                }
+            }
+            {%endif%}
+            chatSocket.onmessage=(event)=>{
+                data=JSON.parse(event.data);
+                if(data.location ==='messageBoard'){
+                    if(data.action==='modify'){
+                        if(data.messageType==='acceptedRequest'){
+                            loadMember(data.owner);
+                        }
+                        modifyMessage(data.sender,data.message);
+                    }
+                    else if(data.action==='delete'){
+                        if(data.messageType==='joinRequest'){
+                            document.querySelector(`[data-message="${data.message.messageID}"]`).remove();
+                        }
+                    }
+                    else{
+                        if(messageBoard.scrollHeight-messageBoard.scrollTop-messageBoard.clientHeight<1){
+                            loadMessage(data.sender,data.message,data.messageType);
+                            BottomScroll(messageBoard);
+                        }
+                        else
+                            loadMessage(data.sender,data.message,data.messageType);
+                    }
+                }
+                else if(data.location==='members'){
+                    if(data.action==='add'){
+                        loadMember(data.user);
+                    }
+                    else if(data.action==='remove'){
+                        document.querySelector(`#memberContainer_${data.userID}`).remove();
+                    }
+                }
+            }
+            chatSocket.onclose=event=>{console.log('websocket closed')}
+            function loadMessage(person,message,messageType){
+                let messageContainer=document.createElement('div');
+                messageContainer.className='messageContainer';
+                messageContainer.dataset.message=`${message.messageID}`;
+                messageContainer.dataset.user=`${person.userID}`;
+
+                let messageLeft=document.createElement('div');
+                messageLeft.className='messageLeft';
+                let profilePicture=document.createElement('img');
+                profilePicture.className='profilePicture';
+                profilePicture.src=`{%static 'group'%}/profilePicture/${person.profilePicture}`;
+                messageLeft.append(profilePicture);
+                messageContainer.append(messageLeft);
+
+                let messageRight=document.createElement('div');
+                messageRight.className='messageRight';
+                let messageTop=document.createElement('div');
+                messageTop.className='messageTop';
+                messageRight.append(messageTop);
+                let profileName=document.createElement('h5');
+                profileName.className='profileName';
+                profileName.innerHTML=person.username;
+                messageTop.append(profileName);
+                let messageTime=document.createElement('div');
+                messageTime.className='messageTime';
+                messageTime.innerHTML=message.time;
+                messageTop.append(messageTime);
+
+                let messageContent=document.createElement('div');
+                if(messageType==='message'){
+                    messageContent.className='messageContent';
+                    messageContent.innerHTML=message.content;
+                }
+                else if(messageType==='joinRequest'){
+                    messageContent.className='messageContent joinContent';
+                    joinHeader=document.createElement('h4');
+                    joinHeader.innerHTML='Join Request';
+                    messageContent.append(joinHeader);
+                    {%if user in supers%}
+                    joinAccept=document.createElement('button');
+                    joinAccept.innerHTML='Accept';
+                    joinAccept.className='btn btn-primary m-2 joinAccept';
+                    joinAccept.onclick=()=>{
+                        chatSocket.send(JSON.stringify({
+                            'messageType':'accept',
+                            'action':'modify',
+                            'messageID':message.messageID,
+                            'message':'{{user.username}} accepted the join request'
+                        }))
+                    }
+                    joinReject=document.createElement('button');
+                    joinReject.innerHTML='Reject';
+                    joinReject.className='btn btn-primary m-2 joinRejcet';
+                    joinReject.onclick=()=>{
+                        chatSocket.send(JSON.stringify({
+                            'messageType':'reject',
+                            'action':'modify',
+                            'messageID':message.messageID,
+                            'message':'{{user.username}} rejected the join request'
+                        }))
+                    }
+                    messageContent.append(joinAccept,joinReject)
+                    {%endif%}
+                }
+                else if(messageType==='acceptedRequest'){
+                    messageContent.className='joinContent';
+                    messageContent.innerHTML=message.content;
+                }
+                else if(messageType==='rejectRequest'){
+                    messageContent.className='joinContent';
+                    messageContent.innerHTML=message.content;
+                }
+                messageRight.append(messageContent);
+                messageContainer.append(messageRight);
+                messageBoard.append(messageContainer);
+            }
+            
+            function modifyMessage(modifier,message){
+                let messageContainer=document.querySelector(`[data-message="${message.messageID}"]`);
+                let messageContent=messageContainer.querySelector('.messageContent');
+                messageContent.innerHTML=message.content;
+            }
+
+            function loadMember(member){
+                memberContainer=document.createElement('div');
+                memberContainer.className='memberContainer';
+                memberContainer.id=`memberContainer_${member.userID}`;
+                memberContainer.innerHTML=`
+                    <div class="memberLeft"><img class="profilePicture" src="{%static 'group/profilePicture/'%}Capture.PNG"></div>
+                    <div class="memberRight">${member.username} (member)</div>
+                `;
+                members.append(memberContainer);
+            }
+
+
+            let memberOption=document.querySelector('#memberOption');
+            let members=document.querySelector('#members');
+            memberOption.onclick=runAnimation;
+            members.onanimationend=expandDown;
+            {%if user in supers%}
+                let groupManager=document.querySelector('#groupManager');
+                let managed=document.querySelector('#managed');
+                groupManager.onclick=runAnimation;
+                managed.onanimationend=expandDown;
+            {%endif%}
+            let backgroundCheckBox=document.querySelector('#backgroundCheckBox')
+            backgroundCheckBox.onchange=runAnimation;
+
+            let newPasswordCheckBox=document.querySelector('#newPasswordCheckBox');
+            newPasswordCheckBox.onclick=runAnimation;
+
+            let change=document.querySelector('#change');
+            change.onclick=()=>{
+                let data={};
+                data.name=document.querySelector('#name').value;
+                data.description=document.querySelector('#description').value;
+                if(backgroundCheckBox.checked)
+                    data.backgroundCheckBox='on';
+                data.background=document.querySelector('#background').value;
+                if(document.querySelector('#privateCheckBox').checked)
+                    data.privateCheckBox='on';
+                if(document.querySelector('#manualCheckBox').checked)
+                    data.manualCheckBox='on';
+                if(document.querySelector('#passwordCheckBox').checked)
+                    data.passwordCheckBox='on';
+                if(newPasswordCheckBox.checked){
+                    data.newPasswordCheckBox='on';
+                    let password=document.querySelector('#password')
+                    data.newPassword=password.value;
+                    password.value='';
+                    newPasswordCheckBox.checked=false;
+                    newPasswordCheckBox.nextElementSibling.className='show-down-40px';
+                }
+                fetch(csrfRequest('{%url "modifySetting" group.id%}'),{
+                    method:'post',
+                    body:JSON.stringify(data)
+                })
+                .then(()=>alert('Changed Group Setting'))
+            }
+            function BottomScroll(element){
+                element.scrollTop=element.scrollHeight;
+            }
+            function runAnimation(event){
+                event.target.nextElementSibling.style.animationPlayState="running";
+            }
+            function expandDown(event){
+                let target=event.target;
+                target.style.animationPlayState="paused";
+                if(target.className.includes('show-down'))
+                    target.className=target.className.replace('show-down','hide-up');
+                else
+                    target.className=target.className.replace('hide-up','show-down');
+            }
+        })
+    </script>
+
+
+    <div id="groupContent">
+        <div id="messageSection">
+            <div id="messageBoard">
+            </div>
+            <div id="newMessage" class="input-group">
+                {%if user.is_authenticated%}
+                    <input id="messageInput" type="text" class="form-control" placeholder="Message">
+                    <div class="input-group-append">
+                        <span class="input-group-text">todo</span>
+                    </div>
+                {%else%}
+                    <h4 style="text-align:center; width:inherit;">
+                        View Only
+                    </h4>
+                {%endif%}
+            </div>
+        </div>
+        <div id="setting">
+            <h5 id="memberOption">Members</h5>
+            <div id="members" class="show-down-50p">
+                {%for super in supers%}
+                    <div id="memberContainer_{{super.id}}" class="memberContainer">
+                        <a href="//127.0.0.1:8000" class="memberLeft"><img class="profilePicture" src="{%static 'group/profilePicture/'%}Capture.PNG"></a>
+                        <div class="memberRight">{{super.username}} (super)</div>
+                    </div>
+                {%endfor%}
+                {%for member in members%}
+                    <div id="memberContainer_{{member.id}}" class="memberContainer">
+                        <div class="memberLeft"><img class="profilePicture" src="{%static 'group/profilePicture/'%}Capture.PNG"></div>
+                        <div class="memberRight">{{member.username}} (member)</div>
+                    </div>
+                {%endfor%}
+            </div>
+
+            
+            {%if user in supers%}
+                <h5 id="groupManager">Settings</h5>
+                <div id="managed" class="show-down-50p">
+                    <div class="mb-3">
+                        <strong>Name</strong>
+                        <input id='name' class="form-control" placeholder="Group Name" name="name" value="{{group.name}}">
+                    </div>
+                    <div class="mb-3">
+                        <strong>Description</strong>
+                        <textarea id="description" class="form-control description" rows="5">{{group.description}}</textarea>
+                    </div>    
+                    <div class="mb-3">
+                        <strong>Group Background</strong>
+                        <input id='backgroundCheckBox' class="form-check-input" type="checkbox" name="backgroundCheckBox" autocomplete="off">
+                        <div class="show-down-40px" style="overflow:hidden;"><input id="background" class="form-control" placeholder="Group background url" name="background" value="{%if group.background%}{{group.background}}{%endif%}"></div>
+                    </div>
+                    <div class="mb-3">
+                        <strong>Private</strong>
+                            {%if group.private == 'on'%}
+                                <input id='privateCheckBox'class="form-check-input" type="checkbox" checked>
+                            {%else%}
+                                <input id='privateCheckBox'class="form-check-input" type="checkbox">
+                            {%endif%}
+                    </div>
+                    <div class="mb-3">
+                        <strong>Manually Accept</strong>
+                        {%if group.manual == 'on'%}
+                            <input id='manualCheckBox'class="form-check-input" type="checkbox" checked>
+                        {%else%}
+                            <input id='manualCheckBox'class="form-check-input" type="checkbox">
+                        {%endif%}
+                    </div>
+                    <div class="mb-3">
+                        <strong>Password Required</strong>
+                        {%if group.passwordEnabled == 'on' %}
+                            <input id='passwordCheckBox'class="form-check-input" type="checkbox" checked>
+                        {%else%}
+                            <input id='passwordCheckBox'class="form-check-input" type="checkbox">
+                        {%endif%}
+                    </div>
+                    <div class="mb-3">
+                        <strong>New Password</strong>
+                        <input id='newPasswordCheckBox'class="form-check-input" type="checkbox" autocomplete="off">
+                        <div class="show-down-40px" style="overflow:hidden;"><input id="password" class="form-control" type="password" placeholder="Password" name="password"></div>
+                    </div>
+                    <button id='change' type="submit" class="btn btn-primary">change</button>
+                </div>
+            {%endif%}
+        </div>
+    </div>
+{%endblock%}
