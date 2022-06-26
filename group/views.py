@@ -1,4 +1,5 @@
 import json
+import re
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound, JsonResponse
 from django.urls import reverse
@@ -6,6 +7,7 @@ from django.contrib.auth import logout,login,authenticate,hashers
 from django.db import IntegrityError
 from django.contrib.auth.decorators import login_required
 from .models import User,Group,Message,Membership
+from django.core.files import File
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 from datetime import datetime
@@ -39,7 +41,6 @@ def register(request):
     if request.method == "POST":
         username = request.POST["username"]
         email = request.POST["email"]
-
         # Ensure password matches confirmation
         password = request.POST["password"]
         confirmation = request.POST["confirmation"]
@@ -51,11 +52,16 @@ def register(request):
         # Attempt to create new user
         try:
             user = User.objects.create_user(username, email, password)
-            user.save()
         except IntegrityError:
             return render(request, "group/register.html", {
                 "message": "Username already taken."
             })
+        profileImage = request.FILES.get('profileImage')
+        profileImage.name = re.sub(r".+(?=\.)", str(user.id), profileImage.name)
+        user.profileImage=profileImage
+        user.saveImage(profileImage)
+        user.save()
+
         login(request, user)
         return HttpResponseRedirect(reverse("index"))
     else:
@@ -70,6 +76,7 @@ def personal(request):
     return render(request, 'group/index.html', {
         'super': user.group.filter(membership__status='super'),
         'member': user.group.filter(membership__status='member'),
+        'pending':user.group.filter(membership__status='pending'),
         'nonMember': Group.objects.all().difference(user.group.all())
     })
 def group(request,groupID):
@@ -141,8 +148,7 @@ def messages(request):
                         },
                         'sender':{
                             'userID':message.sender.id,
-                            'username':message.sender.username,
-                            'profilePicture': 'capture.PNG'
+                            'username':message.sender.username
                         }
                     })
                 return api

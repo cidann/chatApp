@@ -78,7 +78,7 @@
                 messageLeft.className='messageLeft';
                 let profilePicture=document.createElement('img');
                 profilePicture.className='profilePicture';
-                profilePicture.src=`{%static 'group'%}/profilePicture/${person.profilePicture}`;
+                profilePicture.src=`{%static 'group'%}/profilePicture/${person.userID}.PNG`;
                 messageLeft.append(profilePicture);
                 messageContainer.append(messageLeft);
 
@@ -156,7 +156,7 @@
                 memberContainer.className='memberContainer';
                 memberContainer.id=`memberContainer_${member.userID}`;
                 memberContainer.innerHTML=`
-                    <div class="memberLeft"><img class="profilePicture" src="{%static 'group/profilePicture/'%}Capture.PNG"></div>
+                    <div class="memberLeft"><img class="profilePicture" src="{%static 'group'%}/profilePicture/${member.userID}.PNG"></div>
                     <div class="memberRight">${member.username} (member)</div>
                 `;
                 members.append(memberContainer);
@@ -172,41 +172,42 @@
                 let managed=document.querySelector('#managed');
                 groupManager.onclick=runAnimation;
                 managed.onanimationend=expandDown;
-            {%endif%}
-            let backgroundCheckBox=document.querySelector('#backgroundCheckBox')
-            backgroundCheckBox.onchange=runAnimation;
+            
+                let backgroundCheckBox=document.querySelector('#backgroundCheckBox')
+                backgroundCheckBox.onchange=runAnimation;
 
-            let newPasswordCheckBox=document.querySelector('#newPasswordCheckBox');
-            newPasswordCheckBox.onclick=runAnimation;
+                let newPasswordCheckBox=document.querySelector('#newPasswordCheckBox');
+                newPasswordCheckBox.onclick=runAnimation;
 
-            let change=document.querySelector('#change');
-            change.onclick=()=>{
-                let data={};
-                data.name=document.querySelector('#name').value;
-                data.description=document.querySelector('#description').value;
-                if(backgroundCheckBox.checked)
-                    data.backgroundCheckBox='on';
-                data.background=document.querySelector('#background').value;
-                if(document.querySelector('#privateCheckBox').checked)
-                    data.privateCheckBox='on';
-                if(document.querySelector('#manualCheckBox').checked)
-                    data.manualCheckBox='on';
-                if(document.querySelector('#passwordCheckBox').checked)
-                    data.passwordCheckBox='on';
-                if(newPasswordCheckBox.checked){
-                    data.newPasswordCheckBox='on';
-                    let password=document.querySelector('#password')
-                    data.newPassword=password.value;
-                    password.value='';
-                    newPasswordCheckBox.checked=false;
-                    newPasswordCheckBox.nextElementSibling.className='show-down-40px';
+                let change=document.querySelector('#change');
+                change.onclick=()=>{
+                    let data={};
+                    data.name=document.querySelector('#name').value;
+                    data.description=document.querySelector('#description').value;
+                    if(backgroundCheckBox.checked)
+                        data.backgroundCheckBox='on';
+                    data.background=document.querySelector('#background').value;
+                    if(document.querySelector('#privateCheckBox').checked)
+                        data.privateCheckBox='on';
+                    if(document.querySelector('#manualCheckBox').checked)
+                        data.manualCheckBox='on';
+                    if(document.querySelector('#passwordCheckBox').checked)
+                        data.passwordCheckBox='on';
+                    if(newPasswordCheckBox.checked){
+                        data.newPasswordCheckBox='on';
+                        let password=document.querySelector('#password')
+                        data.newPassword=password.value;
+                        password.value='';
+                        newPasswordCheckBox.checked=false;
+                        newPasswordCheckBox.nextElementSibling.className='show-down-40px';
+                    }
+                    fetch(csrfRequest('{%url "modifySetting" group.id%}'),{
+                        method:'post',
+                        body:JSON.stringify(data)
+                    })
+                    .then(()=>alert('Changed Group Setting'))
                 }
-                fetch(csrfRequest('{%url "modifySetting" group.id%}'),{
-                    method:'post',
-                    body:JSON.stringify(data)
-                })
-                .then(()=>alert('Changed Group Setting'))
-            }
+            {%endif%}
             function BottomScroll(element){
                 element.scrollTop=element.scrollHeight;
             }
@@ -227,14 +228,12 @@
 
     <div id="groupContent">
         <div id="messageSection">
+            <h5 id="groupLabel">{{group.name}}</h5>
             <div id="messageBoard">
             </div>
             <div id="newMessage" class="input-group">
                 {%if user.is_authenticated%}
                     <input id="messageInput" type="text" class="form-control" placeholder="Message">
-                    <div class="input-group-append">
-                        <span class="input-group-text">todo</span>
-                    </div>
                 {%else%}
                     <h4 style="text-align:center; width:inherit;">
                         View Only
@@ -247,13 +246,13 @@
             <div id="members" class="show-down-50p">
                 {%for super in supers%}
                     <div id="memberContainer_{{super.id}}" class="memberContainer">
-                        <a href="//127.0.0.1:8000" class="memberLeft"><img class="profilePicture" src="{%static 'group/profilePicture/'%}Capture.PNG"></a>
+                        <div class="memberLeft"><img class="profilePicture" src="{%static 'group/profilePicture/'%}{{super.id}}.PNG"></div>
                         <div class="memberRight">{{super.username}} (super)</div>
                     </div>
                 {%endfor%}
                 {%for member in members%}
                     <div id="memberContainer_{{member.id}}" class="memberContainer">
-                        <div class="memberLeft"><img class="profilePicture" src="{%static 'group/profilePicture/'%}Capture.PNG"></div>
+                        <div class="memberLeft"><img class="profilePicture" src="{%static 'group/profilePicture/'%}{{member.id}}.PNG"></div>
                         <div class="memberRight">{{member.username}} (member)</div>
                     </div>
                 {%endfor%}

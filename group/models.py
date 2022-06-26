@@ -1,11 +1,18 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.hashers import make_password,check_password
+from django.core.validators import validate_image_file_extension
+
 # Create your models here.
 
 
 class User(AbstractUser):
-    pass
+    profileImage=models.ImageField(upload_to='group/static/group/profilePicture',validators=[validate_image_file_extension])
+
+    def saveImage(self,f):
+        with open(self.profileImage.path,'wb+') as file:
+            for chunk in f.chunks():
+                file.write(chunk)
 
 class Group(models.Model):
     name=models.TextField()

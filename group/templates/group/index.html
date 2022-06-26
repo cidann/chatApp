@@ -14,25 +14,32 @@
         
         joinSocket.onmessage=(event)=>{
           let data=JSON.parse(event.data);
-          if(data.status === 'removed' || data.status === 'reject')
+          let group=document.querySelector(`#group_${data.groupID}`);
+          let passwordContainer=group.querySelector('.passwordContainer');
+          let passwordMessage=passwordContainer.querySelector('span');
+          if(data.status === 'removed' || data.status === 'reject'){
             document.querySelector(`[data-id="${data.groupID}"]`).innerHTML='join';
-          else if(data.status === 'joined' || data.status === 'accept')
+            passwordContainer.classList.remove('invisible');
+            passwordMessage.className=passwordMessage.innerHTML='';
+            {%if request.path == '/personal'%}document.querySelector('#nonMember').append(group){%endif%}
+          }
+          else if(data.status === 'joined' || data.status === 'accept'){
             document.querySelector(`[data-id="${data.groupID}"]`).innerHTML='leave';
-          else if(data.status === 'pending')
+            passwordContainer.classList.add('invisible');
+            passwordMessage.className=passwordMessage.innerHTML='';
+            {%if request.path == '/personal'%}document.querySelector('#member').append(group){%endif%}
+          }
+          else if(data.status === 'pending'){
             document.querySelector(`[data-id="${data.groupID}"]`).innerHTML='pending';
+            {%if request.path == '/personal'%}document.querySelector('#pending').append(group){%endif%}
+          }
           else if(data.status ==='passwordTrue'){
-            let passwordContainer=document.querySelector(`#group_${data.groupID}`).querySelector('.passwordContainer');
-            let success=document.createElement('span');
-            success.className='sucess';
-            success.innerHTML='Correct Password';
-            passwordContainer.querySelector('span').replaceWith(success);
+            passwordMessage.innerHTML='Correct Password';
+            passwordMessage.className='sucess';
           }
           else if(data.status==='passwordFalse'){
-            let passwordContainer=document.querySelector(`#group_${data.groupID}`).querySelector('.passwordContainer');
-            let warning=document.createElement('span');
-            warning.className='warning';
-            warning.innerHTML='Wrong Password';
-            passwordContainer.querySelector('span').replaceWith(warning);
+            passwordMessage.innerHTML='Wrong Password';
+            passwordMessage.className='warning';
           }
         }
         let joinButtons=document.querySelectorAll('.joinButton')
@@ -40,8 +47,10 @@
           if(join){
             join.onclick=()=>{
               let passwordInput=join.closest('.card-body').querySelector('.passwordInput');
-              if(passwordInput)
+              if(passwordInput){
                 password=passwordInput.value;
+                passwordInput.value='';
+              }
               else
                 password='';
               joinSocket.send(JSON.stringify({
@@ -55,34 +64,46 @@
         
       })
     </script>
-    {%if super%}
+    {%if request.path == '/personal'%}
+      <div href="{%url 'personal'%}" id="profile">
+        <div class="memberLeft"><img class="profilePicture" src="{%static 'group/profilePicture/'%}{{user.id}}.PNG"></div>
+        <div class="memberRight">{{user.username}}</div>
+      </div>
+      <div id="profileInfo">
+        <div>
+          Email: {{user.email}}
+        </div>
+        <button class="btn btn-primary">Edit</button>
+      </div>
       <h2>Super User of:</h2>
-      <div class="row">
+      <div class="row" id="super">
         {%for group in super%}
           {%include 'group/groupDisplay.html'%}    
         {%endfor%}
       </div>
       <hr>
-    {%endif%}
-    {%if member%}
       <h2>Member of:</h2>
-      <div class="row">
+      <div class="row" id="member">
         {%for group in member%}
           {%include 'group/groupDisplay.html'%}    
         {%endfor%}
       </div>
       <hr>
-    {%endif%}
-    {%if nonMember%}
-      <div class="row">
+      <h2>Pending:</h2>
+      <div class="row" id="pending">
+        {%for group in pending%}
+          {%include 'group/groupDisplay.html'%}    
+        {%endfor%}
+      </div>
+      <hr>
+      <div class="row" id="nonMember">
         {%for group in nonMember%}
           {%include 'group/groupDisplay.html'%}    
         {%endfor%}
       </div>
       <hr>
-    {%endif%}
-    {%if all%}
-      <div class="row">
+    {%else%}
+      <div class="row" id="all">
         {%for group in all%}
           {%include 'group/groupDisplay.html'%}    
         {%endfor%}

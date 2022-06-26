@@ -65,13 +65,11 @@ class groupChat(WebsocketConsumer):
                             },
                             'owner':{
                                 'userID': owner.id,
-                                'username': owner.username,
-                                'profilePicture': 'capture.PNG'
+                                'username': owner.username
                             },
                             'sender': {
                                 'userID': sender.id,
-                                'username': sender.username,
-                                'profilePicture': 'capture.PNG'
+                                'username': sender.username
                             }
                         }
                     )
@@ -91,8 +89,7 @@ class groupChat(WebsocketConsumer):
                         },
                         'sender':{
                             'userID': sender.id,
-                            'username': sender.username,
-                            'profilePicture': 'capture.PNG'
+                            'username': sender.username
                         }
                     }
                 )
@@ -137,8 +134,7 @@ class groupChat(WebsocketConsumer):
             },
             'sender': {
                 'userID': sender.id,
-                'username': sender.username,
-                'profilePicture': 'capture.PNG'
+                'username': sender.username
             }
         }))
     def onLeave(self,event):
@@ -229,8 +225,7 @@ class join(WebsocketConsumer):
                             'action':'add',
                             'user':{
                                 'userID': self.user.id,
-                                'username': self.user.username,
-                                'profilePicture': 'capture.PNG'
+                                'username': self.user.username
                             }
                         }
                     )

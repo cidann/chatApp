@@ -14,9 +14,9 @@ html, body { height: 100%; width: 100%; margin: 0; overflow: hidden; }
     sidebar and components
 */
 #sidebar{
-    min-width: 15%;
+    width: 15%;
     height: 100%;
-    background-color: rgb(190, 190, 190);
+    background-color: rgb(179, 165, 165);
     box-shadow: 0px 0px 5px 2px dimgray;
 }
 
@@ -35,13 +35,15 @@ html, body { height: 100%; width: 100%; margin: 0; overflow: hidden; }
 }
 
 #sidebar>*:not(hr,#home,#search):hover{
-    background-color: white;
+    background-color: rgb(255, 198, 198);
 }
 
 #home{
+    display: flex;
     font-size: x-large;
     font-weight: bold;
 }
+
 
 #search>input{
     border-radius: 4px;
@@ -78,12 +80,21 @@ html, body { height: 100%; width: 100%; margin: 0; overflow: hidden; }
             Message display and input section
 */
 #messageSection{
+    display: flex;
     width: 80%;
     height: 100%;
+    flex-direction: column;
+}
+#groupLabel{
+    border-radius: 0 0 10px 10px;
+    text-align: center;
+    padding: 6px;
+    margin: 0px;
+    margin-right: 10px;
 }
 #messageBoard{
     width: 100%;
-    height: 92%;
+    flex: 1;
     overflow-y: scroll;
     padding: 5px;
     padding-left: 0;
@@ -143,8 +154,10 @@ html, body { height: 100%; width: 100%; margin: 0; overflow: hidden; }
 }
 
 #newMessage{
-    padding-right: 10px;
+    padding: 0 10px 10px 0;
 }
+
+
 /*
             Member display section
 */
@@ -171,11 +184,11 @@ html, body { height: 100%; width: 100%; margin: 0; overflow: hidden; }
 }
 #members::-webkit-scrollbar-track,#managed::-webkit-scrollbar-track{
     border-radius: 20px;
-    background-color: darkslategray;
+    background-color: gray;
 }
 #members::-webkit-scrollbar-thumb,#managed::-webkit-scrollbar-thumb{
     border-radius: 20px;
-    background-color: gray;
+    background-color: darkslategray;
 }
 #setting hr{
     margin: 0px;
@@ -200,6 +213,7 @@ html, body { height: 100%; width: 100%; margin: 0; overflow: hidden; }
 
 /*
     css for login and register form
+    Also for common components
 */
 h2{
     margin-top:15px;
@@ -213,14 +227,31 @@ h2{
     text-decoration: none;
 }
 .sucess{
-    color: greenyellow;
+    color: rgb(32, 173, 32);
     pointer-events: none;
     text-decoration: none;
+}
+.invisible{
+    visibility: hidden;
 }
 .hidden{
     display: none;
 }
 
+/*
+    profile
+*/
+#profile{
+    display: flex;
+    width: 40%;
+    height: 15%;
+    font-size: x-large;
+    font-weight: bold;
+}
+#profileInfo{
+    font-family:sans-serif;
+    margin: 8px;
+}
 /*
     modifications to bootstrap(display of each group in index)(forms)
 */
@@ -230,33 +261,43 @@ h2{
 .card{
     width: 352px;
     height: 352px;
+    background-color:rgb(104, 97, 97);
+    color: white;
 }
 .card-body{
     position: relative;
     width: 100%;
     height: 100%;
 }
-.card-text{
-    height: 65%;
+.description{
+    height: 63%;
     overflow-y: auto;
     word-break: break-all;
-    margin-bottom: 0px;
+    margin-bottom: 5px;
+    padding: 5px;
+    border: 1px solid rgb(146, 146, 146);
+    border-radius: 5px;
 }
 .card-body .passwordContainer{
     height: 15%;
     display: flex;
     align-items: center;
+    margin: 3px 0px 3px 0px;
+}
+.card-body .btn{
+    border: 0px;
+    background-color: black;
 }
 .description::-webkit-scrollbar{
     width: 10px;
 }
 .description::-webkit-scrollbar-track{
     border-radius: 20px;
-    background-color: darkslategray;
+    background-color: grey;
 }
 .description::-webkit-scrollbar-thumb{
     border-radius: 20px;
-    background-color: grey;
+    background-color: darkslategray;
 }
 .form-control{
     width: 98%;
