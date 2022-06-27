@@ -1,0 +1,54 @@
+{%extends 'group/layout.html'%}
+
+{%block body%} 
+    <script>
+        document.addEventListener('DOMContentLoaded',()=>{
+            
+          let newPasswordCheckBox=document.querySelector('#newPasswordCheckBox');
+          newPasswordCheckBox.onclick=runAnimation;
+          newPasswordCheckBox.nextElementSibling.onanimationend=expandDown;
+          function runAnimation(event){
+                  event.target.nextElementSibling.style.animationPlayState="running";
+              }
+          function expandDown(event){
+              let target=event.target;
+              target.style.animationPlayState="paused";
+              if(target.className.includes('show-down'))
+                  target.className=target.className.replace('show-down','hide-up');
+              else
+                  target.className=target.className.replace('hide-up','show-down');
+          }
+        })
+    </script>
+    <h2>Edit Profile</h2>
+    {% if message %}
+        <div class="warning">{{ message }}</div>
+    {% endif %}
+    <form action="{% url 'editProfile' %}" method="post"  enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-group">
+            <input value="{{user.username}}" class="form-control" autofocus type="text" name="username" placeholder="Username">
+        </div>
+        <div class="form-group">
+            <input value="{{user.email}}" class="form-control" type="email" name="email" placeholder="Email Address">
+        </div>
+        <div class="form-group">
+            <strong>New Password</strong>
+            <input id='newPasswordCheckBox'class="form-check-input" type="checkbox" name="newPasswordCheckBox" autocomplete="off">
+            <div class="show-down-100px" style="overflow:hidden;">
+                <div class="form-group">
+                    <input id="newPassword" class="form-control" type="password" placeholder="Password" name="newPassword"> 
+                </div>
+                <div class="form-group">
+                    <input class="form-control" type="password" name="newConfirmation" placeholder="Confirm Password">
+                </div>
+            </div>
+        </div>
+        <div class="input-group mb-3">
+            <input value="{{user.profileImage}}" type="file" accept="image/*" class="form-control" id="profileImage" name="profileImage">
+        </div>
+        <input class="btn btn-primary" type="submit" value="Edit">
+    </form>
+
+    <a href="{% url 'personal' %}"> Go Back To Profile Page.</a>
+{%endblock%}

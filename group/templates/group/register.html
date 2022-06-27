@@ -5,7 +5,7 @@
     <h2>Register</h2>
 
     {% if message %}
-        <div>{{ message }}</div>
+        <div class="warning">{{ message }}</div>
     {% endif %}
 
     <form action="{% url 'register' %}" method="post" enctype="multipart/form-data">

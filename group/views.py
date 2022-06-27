@@ -57,9 +57,7 @@ def register(request):
                 "message": "Username already taken."
             })
         profileImage = request.FILES.get('profileImage')
-        profileImage.name = re.sub(r".+(?=\.)", str(user.id), profileImage.name)
-        user.profileImage=profileImage
-        user.saveImage(profileImage)
+        user.setImage(profileImage)
         user.save()
 
         login(request, user)
@@ -72,13 +70,18 @@ def index(request):
 
 @login_required
 def personal(request):
-    user = request.user
-    return render(request, 'group/index.html', {
-        'super': user.group.filter(membership__status='super'),
-        'member': user.group.filter(membership__status='member'),
-        'pending':user.group.filter(membership__status='pending'),
-        'nonMember': Group.objects.all().difference(user.group.all())
-    })
+    userID=request.GET.get('userID')
+    user = User.objects.filter(id=userID).first()
+    if(user):
+        return render(request, 'group/index.html', {
+            'profile':user,
+            'super': user.group.filter(membership__status='super'),
+            'member': user.group.filter(membership__status='member'),
+            'pending':user.group.filter(membership__status='pending'),
+            'nonMember': Group.objects.all().difference(user.group.all())
+        })
+    else:
+        return HttpResponse('User does not exist')
 def group(request,groupID):
     if(request.method=='GET'):
         group=Group.objects.get(id=groupID)
@@ -158,6 +161,7 @@ def messages(request):
     else:
         return JsonResponse({'error':'API only accept GET request'},status=400)
 
+@login_required
 def modifySetting(request,groupID):
     if(request.method=='POST'):
         group=Group.objects.get(id=groupID)
@@ -177,3 +181,31 @@ def modifySetting(request,groupID):
     else:
         return JsonResponse({'error':'api only accept POST request'},status=400)
 
+@login_required
+def editProfile(request):
+    if(request.user.is_authenticated):
+        if(request.method=='POST'):
+            user=request.user
+            username=request.POST['username']
+            email=request.POST['email']
+            newPasswordCheckBox=request.POST.get('newPasswordCheckBox','off')
+            newPassword=request.POST.get('newPassword')
+            newConfirmation=request.POST.get('newConfirmation')
+            profileImage=request.FILES.get('profileImage')
+
+            user.username=username
+            user.email=email
+            if(newPasswordCheckBox=='on'):
+                if(newPassword==newConfirmation):
+                    user.password=newPassword
+                    user.encrypt()
+                else:
+                    return render(request, 'group/editProfile.html',{'message':'confirmation do not match password'})
+            if(profileImage):
+                user.setImage(profileImage)
+            user.save()
+            login(request,user)
+            return HttpResponseRedirect(reverse('personal'))
+        return render(request,'group/editProfile.html')
+    else:
+        return HttpResponse('You Are Not Logged In',status=400)

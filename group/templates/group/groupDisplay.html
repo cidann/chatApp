@@ -4,16 +4,16 @@
     <div class="card-body">
       <h5 class="card-title">{{group.name}}</h5>
       <p class="card-text description">{{group.description}}</p>
-      {%if group|membershipStatus:user.id in 'super member'%}
+      {%if group|membershipStatus:user.id in 'super member' and user.id == profile.id%}
         <div class="passwordContainer invisible">{%if group.passwordEnabled == 'on'%}<input type="password" class="form-control passwordInput" placeholder="Group Password">{%endif%}<span></span></div>
         <button data-id="{{group.id}}" data-private="{{group.private}}" class="joinButton btn btn-primary">leave</button>
         <a href="{%url 'group' group.id%}" class="btn btn-primary">View Chat</a>
-      {%elif group|membershipStatus:user.id in 'pending'%}
+      {%elif group|membershipStatus:user.id in 'pending' and  user.id == profile.id%}
         <div class="passwordContainer invisible">{%if group.passwordEnabled == 'on'%}<input type="password" class="form-control passwordInput" placeholder="Group Password">{%endif%}<span></span></div>
         <button data-id="{{group.id}}" data-private="{{group.private}}" class="joinButton btn btn-primary">pending</button>
         <a href="{%url 'group' group.id%}" class="btn btn-primary">View Chat</a>
       {%else%}
-        {%if user.is_authenticated%}
+        {%if user.is_authenticated and  user.id == profile.id%}
           <div class="passwordContainer">{%if group.passwordEnabled == 'on'%}<input type="password" class="form-control passwordInput" placeholder="Group Password">{%endif%}<span></span></div>
           <button data-id="{{group.id}}" data-private="{{group.private}}" class="joinButton btn btn-primary">join</button>
         {%else%}

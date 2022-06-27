@@ -14,4 +14,5 @@ urlpatterns=[
     path('search',views.search,name='search'),
     path('messages',views.messages,name='messages'),
     path('modify/<int:groupID>',views.modifySetting,name='modifySetting'),
+    path('editProfile',views.editProfile,name='editProfile'),
 ]

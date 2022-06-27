@@ -6,74 +6,82 @@
 {%block body%} 
     <script>
       document.addEventListener('DOMContentLoaded',()=>{
-        let joinSocket=new WebSocket(
-              'ws://'
-              + window.location.host
-              + '/join'
-              );
-        
-        joinSocket.onmessage=(event)=>{
-          let data=JSON.parse(event.data);
-          let group=document.querySelector(`#group_${data.groupID}`);
-          let passwordContainer=group.querySelector('.passwordContainer');
-          let passwordMessage=passwordContainer.querySelector('span');
-          if(data.status === 'removed' || data.status === 'reject'){
-            document.querySelector(`[data-id="${data.groupID}"]`).innerHTML='join';
-            passwordContainer.classList.remove('invisible');
-            passwordMessage.className=passwordMessage.innerHTML='';
-            {%if request.path == '/personal'%}document.querySelector('#nonMember').append(group){%endif%}
-          }
-          else if(data.status === 'joined' || data.status === 'accept'){
-            document.querySelector(`[data-id="${data.groupID}"]`).innerHTML='leave';
-            passwordContainer.classList.add('invisible');
-            passwordMessage.className=passwordMessage.innerHTML='';
-            {%if request.path == '/personal'%}document.querySelector('#member').append(group){%endif%}
-          }
-          else if(data.status === 'pending'){
-            document.querySelector(`[data-id="${data.groupID}"]`).innerHTML='pending';
-            {%if request.path == '/personal'%}document.querySelector('#pending').append(group){%endif%}
-          }
-          else if(data.status ==='passwordTrue'){
-            passwordMessage.innerHTML='Correct Password';
-            passwordMessage.className='sucess';
-          }
-          else if(data.status==='passwordFalse'){
-            passwordMessage.innerHTML='Wrong Password';
-            passwordMessage.className='warning';
-          }
-        }
-        let joinButtons=document.querySelectorAll('.joinButton')
-        joinButtons.forEach(join=>{
-          if(join){
-            join.onclick=()=>{
-              let passwordInput=join.closest('.card-body').querySelector('.passwordInput');
-              if(passwordInput){
-                password=passwordInput.value;
-                passwordInput.value='';
-              }
-              else
-                password='';
-              joinSocket.send(JSON.stringify({
-                'groupID':join.dataset.id,
-                'password':password
-              }))
+        {%if user.id == profile.id%}
+          let joinSocket=new WebSocket(
+                'ws://'
+                + window.location.host
+                + '/join'
+          );
+
+          joinSocket.onmessage=(event)=>{
+            let data=JSON.parse(event.data);
+            let group=document.querySelector(`#group_${data.groupID}`);
+            let passwordContainer=group.querySelector('.passwordContainer');
+            let passwordMessage=passwordContainer.querySelector('span');
+            if(data.status === 'removed' || data.status === 'reject'){
+              document.querySelector(`[data-id="${data.groupID}"]`).innerHTML='join';
+              passwordContainer.classList.remove('invisible');
+              passwordMessage.className=passwordMessage.innerHTML='';
+              {%if request.path == '/personal'%}document.querySelector('#nonMember').append(group){%endif%}
+            }
+            else if(data.status === 'joined' || data.status === 'accept'){
+              document.querySelector(`[data-id="${data.groupID}"]`).innerHTML='leave';
+              passwordContainer.classList.add('invisible');
+              passwordMessage.className=passwordMessage.innerHTML='';
+              {%if request.path == '/personal'%}document.querySelector('#member').append(group){%endif%}
+            }
+            else if(data.status === 'pending'){
+              document.querySelector(`[data-id="${data.groupID}"]`).innerHTML='pending';
+              {%if request.path == '/personal'%}document.querySelector('#pending').append(group){%endif%}
+            }
+            else if(data.status ==='passwordTrue'){
+              passwordMessage.innerHTML='Correct Password';
+              passwordMessage.className='sucess';
+            }
+            else if(data.status==='passwordFalse'){
+              passwordMessage.innerHTML='Wrong Password';
+              passwordMessage.className='warning';
             }
           }
-        })
-
-        
+          let joinButtons=document.querySelectorAll('.joinButton')
+          joinButtons.forEach(join=>{
+            if(join){
+              join.onclick=()=>{
+                let passwordInput=join.closest('.card-body').querySelector('.passwordInput');
+                if(passwordInput){
+                  password=passwordInput.value;
+                  passwordInput.value='';
+                }
+                else
+                  password='';
+                joinSocket.send(JSON.stringify({
+                  'groupID':join.dataset.id,
+                  'password':password
+                }))
+              }
+            }
+          })
+        {%endif%}
       })
     </script>
     {%if request.path == '/personal'%}
-      <div href="{%url 'personal'%}" id="profile">
-        <div class="memberLeft"><img class="profilePicture" src="{%static 'group/profilePicture/'%}{{user.id}}.PNG"></div>
-        <div class="memberRight">{{user.username}}</div>
+      <div id="profile">
+        <div class="memberLeft"><img class="profilePicture" src="{%static 'group/profilePicture/'%}{{profile.id}}.PNG"></div>
+        <div class="memberRight">{{profile.username}}</div>
       </div>
       <div id="profileInfo">
         <div>
-          Email: {{user.email}}
+          Email: {{profile.email}}
         </div>
-        <button class="btn btn-primary">Edit</button>
+        <div>
+          Last Login: {{profile.last_login}}
+        </div>
+        <div>
+          Joined Date: {{profile.date_joined|date:'M d, Y'}}
+        </div>
+        {%if user.id == profile.id%}
+          <a href="{%url 'editProfile'%}"><button class="btn btn-primary">Edit</button></a>
+        {%endif%}
       </div>
       <h2>Super User of:</h2>
       <div class="row" id="super">

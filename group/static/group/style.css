@@ -16,11 +16,13 @@ html, body { height: 100%; width: 100%; margin: 0; overflow: hidden; }
 #sidebar{
     width: 15%;
     height: 100%;
-    background-color: rgb(179, 165, 165);
+    background-color: rgb(54, 52, 52);
+    color: white;
     box-shadow: 0px 0px 5px 2px dimgray;
 }
 
 #sidebar>*:not(hr){
+    color: white;
     font-family:Arial, Helvetica, sans-serif;
     display: flex;
     align-items: center;
@@ -28,7 +30,6 @@ html, body { height: 100%; width: 100%; margin: 0; overflow: hidden; }
     height: 5%;
     margin-top: 8%;
     text-decoration: none;
-    color: black;
 }
 #sidebar>*:not(#home,#search){
     font-size: large;
@@ -248,9 +249,12 @@ h2{
     font-size: x-large;
     font-weight: bold;
 }
+#profile .memberLeft{
+    justify-content: start;
+}
 #profileInfo{
-    font-family:sans-serif;
     margin: 8px;
+    font-family:sans-serif;
 }
 /*
     modifications to bootstrap(display of each group in index)(forms)
@@ -330,6 +334,18 @@ Animation
     animation-fill-mode: forwards;
     animation-duration: 0.1s;
 }
+.show-down-100px{
+    animation-name: show-down-100px;
+    animation-play-state: paused;
+    animation-fill-mode: forwards;
+    animation-duration: 0.1s;
+}
+.hide-up-100px{
+    animation-name: hide-up-100px;
+    animation-play-state: paused;
+    animation-fill-mode: forwards;
+    animation-duration: 0.1s;
+}
 @keyframes show-down-50p{
     0%{
         height: 0%;
@@ -357,6 +373,22 @@ Animation
 @keyframes hide-up-40px{
     0%{
         height: 40px;
+    }
+    100%{
+        height: 0px;
+    }
+}
+@keyframes show-down-100px {
+    0%{
+        height: 0px;
+    }
+    100%{
+        height: 100px;
+    }
+}
+@keyframes hide-up-100px{
+    0%{
+        height: 100px;
     }
     100%{
         height: 0px;
