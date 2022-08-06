@@ -18,20 +18,31 @@
             let group=document.querySelector(`#group_${data.groupID}`);
             let passwordContainer=group.querySelector('.passwordContainer');
             let passwordMessage=passwordContainer.querySelector('span');
+            let joinButton=group.querySelector('.joinButton');
+            let viewButton=group.querySelector('.viewButton');
+            let private=group.dataset.private;
             if(data.status === 'removed' || data.status === 'reject'){
-              document.querySelector(`[data-id="${data.groupID}"]`).innerHTML='join';
+              joinButton.innerHTML='join';
               passwordContainer.classList.remove('invisible');
               passwordMessage.className=passwordMessage.innerHTML='';
+              if(private){
+                viewButton.classList.remove('btn','btn-primary');
+                viewButton.classList.add('warning');
+                viewButton.innerHTML='private group';
+              }
               {%if request.path == '/personal'%}document.querySelector('#nonMember').append(group){%endif%}
             }
             else if(data.status === 'joined' || data.status === 'accept'){
-              document.querySelector(`[data-id="${data.groupID}"]`).innerHTML='leave';
+              joinButton.innerHTML='leave';
+              viewButton.classList.remove('warning');
+              viewButton.classList.add('btn','btn-primary');
+              viewButton.innerHTML='View Chat';
               passwordContainer.classList.add('invisible');
               passwordMessage.className=passwordMessage.innerHTML='';
               {%if request.path == '/personal'%}document.querySelector('#member').append(group){%endif%}
             }
             else if(data.status === 'pending'){
-              document.querySelector(`[data-id="${data.groupID}"]`).innerHTML='pending';
+              joinButton.innerHTML='pending';
               {%if request.path == '/personal'%}document.querySelector('#pending').append(group){%endif%}
             }
             else if(data.status ==='passwordTrue'){

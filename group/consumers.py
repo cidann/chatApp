@@ -94,7 +94,6 @@ class groupChat(WebsocketConsumer):
                     }
                 )
     def onMessage(self,event):
-        del event['type']
         self.send(json.dumps(event))
 
     def onModify(self,event):
@@ -138,10 +137,8 @@ class groupChat(WebsocketConsumer):
             }
         }))
     def onLeave(self,event):
-        del event['type']
         self.send(json.dumps(event))
     def onJoin(self,event):
-        del event['type']
         self.send(json.dumps(event))
 
 
