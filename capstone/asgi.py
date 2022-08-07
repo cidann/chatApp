@@ -14,7 +14,7 @@ from django.core.asgi import get_asgi_application
 from channels.security.websocket import AllowedHostsOriginValidator
 from channels.auth import AuthMiddlewareStack
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'capstone.settings')
-
+django.setup()
 
 import group.routing
 import group.urls
