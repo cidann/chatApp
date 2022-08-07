@@ -28,5 +28,5 @@ application = ProtocolTypeRouter({
             )
         )
     ),
-    'http':django_asgi_app
+    'https':django_asgi_app
 })
