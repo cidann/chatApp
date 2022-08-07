@@ -27,5 +27,6 @@ application = ProtocolTypeRouter({
                 group.routing.websocket_urlpatterns
             )
         )
-    )
+    ),
+    'http':django_asgi_app
 })
