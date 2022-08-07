@@ -25,7 +25,7 @@ SECRET_KEY = SECRET
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['.herokuapp.com','127.0.0.1:8000']
+ALLOWED_HOSTS = ['.herokuapp.com', 'localhost']
 
 
 # Application definition
@@ -129,7 +129,7 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [(os.environ.get('REDIS_URL'), 6379)],
+            "hosts": [os.environ.get('REDIS_URL', 'redis://localhost:6379')],
         },
     },
 }
