@@ -1,1 +1,1 @@
-web: gunicorn capstone.wsgi
+py manage.py runserver
