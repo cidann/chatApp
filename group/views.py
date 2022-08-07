@@ -205,7 +205,7 @@ def editProfile(request):
                 user.setImage(profileImage)
             user.save()
             login(request,user)
-            return HttpResponseRedirect(reverse('personal'))
+            return HttpResponseRedirect(f"{reverse('personal')}?userID={user.id}")
         return render(request,'group/editProfile.html')
     else:
         return HttpResponse('You Are Not Logged In',status=400)
