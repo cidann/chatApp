@@ -8,7 +8,7 @@
       document.addEventListener('DOMContentLoaded',()=>{
         {%if user.id == profile.id%}
           let joinSocket=new WebSocket(
-                'ws://'
+                'wss://'
                 + window.location.host
                 + '/join'
           );
