@@ -28,6 +28,10 @@ SECRET_KEY = os.environ.get('SECRET_KEY','didnotgetkeyvalue')
 DEBUG = bool(os.environ.get('DEBUG',False))
 
 ALLOWED_HOSTS = ['.herokuapp.com', '127.0.0.1']
+if(os.environ.get('DEVELOPEMENT')):
+    CSRF_TRUSTED_ORIGINS = []
+else:
+    CSRF_TRUSTED_ORIGINS=['https://agile-waters-93639.herokuapp.com/']
 
 
 # Application definition
