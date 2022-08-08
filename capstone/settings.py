@@ -77,13 +77,25 @@ WSGI_APPLICATION = 'capstone.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+if(os.environ.get('DEVELOPEMENT')):
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': 'postgresql',
+            'USER': 'ruic',
+            'PASSWORD': os.environ.get('POSTGRESQL_PASSWORD'),
+            'HOST': os.environ.get('POSTGRESQL_HOST'),
+            'PORT': os.environ.get('POSTGRESQL_PORT')
+        }
+    }
+
 
 AUTH_USER_MODEL='group.User'
 
