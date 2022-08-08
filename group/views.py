@@ -57,7 +57,8 @@ def register(request):
                 "message": "Username already taken."
             })
         profileImage = request.FILES.get('profileImage')
-        user.setImage(profileImage)
+        if(profileImage):
+            user.setImage(profileImage)
         user.save()
 
         login(request, user)
