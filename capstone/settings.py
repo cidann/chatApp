@@ -88,8 +88,8 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': 'postgresql',
-            'USER': 'ruic',
+            'NAME': os.environ.get('POSTGRESQL_NAME'),
+            'USER': os.environ.get('lifsygiukcdckn'),
             'PASSWORD': os.environ.get('POSTGRESQL_PASSWORD'),
             'HOST': os.environ.get('POSTGRESQL_HOST'),
             'PORT': os.environ.get('POSTGRESQL_PORT')
