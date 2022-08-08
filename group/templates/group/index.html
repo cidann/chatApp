@@ -6,9 +6,10 @@
 {%block body%} 
     <script>
       document.addEventListener('DOMContentLoaded',()=>{
+        const ws_scheme=window.location.protocol == "https:" ? "wss" : "ws";
         {%if user.id == profile.id%}
           let joinSocket=new WebSocket(
-                'wss://'
+                ws_scheme+'://'
                 + window.location.host
                 + '/join'
           );
