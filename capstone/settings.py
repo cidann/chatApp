@@ -31,7 +31,7 @@ ALLOWED_HOSTS = ['.herokuapp.com', '127.0.0.1']
 if(os.environ.get('DEVELOPEMENT')):
     CSRF_TRUSTED_ORIGINS = []
 else:
-    CSRF_TRUSTED_ORIGINS=['https://channelschatapp.herokuapp.com','http://channelschatapp.herokuapp.com']
+    CSRF_TRUSTED_ORIGINS=['https://channelschatapp.herokuapp.com']
 
 
 # Application definition

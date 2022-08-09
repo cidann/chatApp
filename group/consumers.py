@@ -20,8 +20,10 @@ class groupChat(WebsocketConsumer):
         self.close()
     def receive(self, text_data):
         sender=self.user
+        data = json.loads(text_data)
+        if(data.get('ping')):
+            return
         if(sender.is_authenticated):
-            data = json.loads(text_data)
             action = data['action']
             messageType = data['messageType']
             messageContent = data['message']
@@ -157,6 +159,8 @@ class join(WebsocketConsumer):
         self.close()
     def receive(self, text_data=None, bytes_data=None):
         data=json.loads(text_data)
+        if(data.get('ping')):
+            return
         groupID=data['groupID']
         group=Group.objects.get(id=groupID)
         if(self.user in group.members.all()):

@@ -55,6 +55,11 @@
               passwordMessage.className='warning';
             }
           }
+          setInterval(()=>{
+                chatSocket.send(JSON.stringify({
+                    'ping':'pinged'
+                }))
+          },599990)
           let joinButtons=document.querySelectorAll('.joinButton')
           joinButtons.forEach(join=>{
             if(join){

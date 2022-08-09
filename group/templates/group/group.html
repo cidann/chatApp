@@ -69,6 +69,11 @@
                 }
             }
             chatSocket.onclose=event=>{console.log('websocket closed')}
+            setInterval(()=>{
+                chatSocket.send(JSON.stringify({
+                    'ping':'pinged'
+                }))
+            },599990)
             function loadMessage(person,message,messageType){
                 let messageContainer=document.createElement('div');
                 messageContainer.className='messageContainer';

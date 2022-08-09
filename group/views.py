@@ -69,7 +69,7 @@ def register(request):
 def index(request):
     return render(request,'group/index.html',{'all':Group.objects.all()})
 
-@login_required
+
 def personal(request):
     userID=request.GET.get('userID')
     user = User.objects.filter(id=userID).first()
