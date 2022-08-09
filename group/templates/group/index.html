@@ -7,7 +7,7 @@
     <script>
       document.addEventListener('DOMContentLoaded',()=>{
         const ws_scheme=window.location.protocol == "https:" ? "wss" : "ws";
-        {%if user.id == profile.id%}
+        {%if user.id%}
           let joinSocket=new WebSocket(
                 ws_scheme+'://'
                 + window.location.host
@@ -56,7 +56,7 @@
             }
           }
           setInterval(()=>{
-                chatSocket.send(JSON.stringify({
+                joinSocket.send(JSON.stringify({
                     'ping':'pinged'
                 }))
           },599990)
