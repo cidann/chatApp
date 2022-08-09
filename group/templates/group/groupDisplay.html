@@ -4,7 +4,7 @@
     <div class="card-body">
       <h5 class="card-title">{{group.name}}</h5>
       <p class="card-text description">{{group.description}}</p>
-      {%if user.is_authenticated and profile.id == user.id%} 
+      {%if user.is_authenticated%} 
         {%if group|membershipStatus:user.id in 'super member'%}
           <div class="passwordContainer invisible">{%if group.passwordEnabled == 'on'%}<input type="password" class="form-control passwordInput" placeholder="Group Password">{%endif%}<span></span></div>
           <button data-id="{{group.id}}" data-private="{{group.private}}" class="joinButton btn btn-primary">leave</button>
