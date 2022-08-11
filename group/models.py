@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.hashers import make_password,check_password
 from django.core.validators import validate_image_file_extension
+from django.core.files import File
 import re,os
 # Create your models here.
 
@@ -9,6 +10,7 @@ import re,os
 class User(AbstractUser):
     profileImage=models.ImageField(
         upload_to=os.path.join('profilePicture',os.environ.get('DEVELOPMENT','production')),
+        default=os.path.join('profilePicture','default.PNG'),
         validators=[validate_image_file_extension]
     )
 
