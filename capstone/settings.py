@@ -10,6 +10,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 import os
+
+import storages.backends.s3boto3
 from dotenv import load_dotenv
 from pathlib import Path
 
@@ -27,11 +29,13 @@ SECRET_KEY = os.environ.get('SECRET_KEY','didnotgetkeyvalue')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(os.environ.get('DEBUG',False))
 
-ALLOWED_HOSTS = ['.herokuapp.com', '127.0.0.1']
-if(os.environ.get('DEVELOPEMENT')):
+
+if(os.environ.get('DEVELOPMENT')):
     CSRF_TRUSTED_ORIGINS = []
+    ALLOWED_HOSTS = []
 else:
     CSRF_TRUSTED_ORIGINS=['https://channelschatapp.herokuapp.com']
+    ALLOWED_HOSTS = ['channelschatapp.herokuapp.com']
 
 
 # Application definition
@@ -45,6 +49,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'storages'
 ]
 
 MIDDLEWARE = [
@@ -81,7 +86,7 @@ WSGI_APPLICATION = 'capstone.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
-if(os.environ.get('DEVELOPEMENT')):
+if(os.environ.get('DEVELOPMENT')):
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
@@ -141,6 +146,8 @@ STATIC_URL = 'static/'
 STATIC_ROOT=os.path.join(BASE_DIR,'staticFiles/')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
+
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
@@ -154,3 +161,8 @@ CHANNEL_LAYERS = {
         },
     },
 }
+AWS_ACCESS_KEY_ID=os.environ.get('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY=os.environ.get('AWS_SECRET_ACCESS_KEY')
+AWS_STORAGE_BUCKET_NAME=os.environ.get('AWS_STORAGE_BUCKET_NAME')
+
+DEFAULT_FILE_STORAGE='storages.backends.s3boto3.S3Boto3Storage'

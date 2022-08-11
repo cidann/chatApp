@@ -85,7 +85,7 @@
                 messageLeft.href=`{%url 'personal'%}?userID=${person.userID}`;
                 let profilePicture=document.createElement('img');
                 profilePicture.className='profilePicture';
-                profilePicture.src=`{%static 'group'%}/profilePicture/${person.userID}.PNG?${Date.now()}`;
+                profilePicture.src=person.image;
                 messageLeft.append(profilePicture);
                 messageContainer.append(messageLeft);
 
@@ -163,7 +163,7 @@
                 memberContainer.className='memberContainer';
                 memberContainer.id=`memberContainer_${member.userID}`;
                 memberContainer.innerHTML=`
-                    <a href="{%url 'personal'%}?userID=${member.userID}" class="memberLeft"><img class="profilePicture" src="{%static 'group'%}/profilePicture/${member.userID}.PNG?${Date.now()}"></a>
+                    <a href="{%url 'personal'%}?userID=${member.userID}" class="memberLeft"><img class="profilePicture" src="${member.image}"></a>
                     <div class="memberRight">${member.username} (member)</div>
                 `;
                 members.append(memberContainer);
@@ -254,13 +254,13 @@
             <div id="members" class="show-down-50p">
                 {%for super in supers%}
                     <div id="memberContainer_{{super.id}}" class="memberContainer">
-                        <a href="{%url 'personal'%}?userID={{super.id}}" class="memberLeft"><img class="profilePicture" src="{%static 'group/profilePicture/'%}{{super.id}}.PNG"></a>
+                        <a href="{%url 'personal'%}?userID={{super.id}}" class="memberLeft"><img class="profilePicture" src="{{super.profileImage.url}}"></a>
                         <div class="memberRight">{{super.username}} (super)</div>
                     </div>
                 {%endfor%}
                 {%for member in members%}
                     <div id="memberContainer_{{member.id}}" class="memberContainer">
-                        <a href="{%url 'personal'%}?userID={{member.id}}" class="memberLeft"><img class="profilePicture" src="{%static 'group/profilePicture/'%}{{member.id}}.PNG"></a>
+                        <a href="{%url 'personal'%}?userID={{member.id}}" class="memberLeft"><img class="profilePicture" src="{{member.profileImage.url}}"></a>
                         <div class="memberRight">{{member.username}} (member)</div>
                     </div>
                 {%endfor%}

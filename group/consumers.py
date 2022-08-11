@@ -67,11 +67,13 @@ class groupChat(WebsocketConsumer):
                             },
                             'owner':{
                                 'userID': owner.id,
-                                'username': owner.username
+                                'username': owner.username,
+                                'image':owner.profileImage.url
                             },
                             'sender': {
                                 'userID': sender.id,
-                                'username': sender.username
+                                'username': sender.username,
+                                'image':sender.profileImage.url
                             }
                         }
                     )
@@ -91,7 +93,8 @@ class groupChat(WebsocketConsumer):
                         },
                         'sender':{
                             'userID': sender.id,
-                            'username': sender.username
+                            'username': sender.username,
+                            'image':sender.profileImage.url
                         }
                     }
                 )
@@ -99,45 +102,12 @@ class groupChat(WebsocketConsumer):
         self.send(json.dumps(event))
 
     def onModify(self,event):
-        del event['type']
         self.send(json.dumps(event))
 
     def onDelete(self,event):
-        location=event['location']
-        action=event['action']
-        messageType=event['messageType']
-        message=event.get('message')
-        sender=event['sender']
-        self.send(json.dumps({
-            'location':location,
-            'action':action,
-            'messageType':messageType,
-            'message':{
-                'messageID': message.id,
-                'content': message.content,
-                'time': message.time.strftime("%m/%d/%Y %I:%M %p")
-            }
-        }))
+        self.send(json.dumps(event))
     def onJoinRequest(self,event):
-        location=event['location']
-        action = event['action']
-        messageType=event['messageType']
-        message=event['message']
-        sender=event['sender']
-        self.send(json.dumps({
-            'location': location,
-            'action': action,
-            'messageType':messageType,
-            'message': {
-                'messageID':message.id,
-                'content': message.content,
-                'time': message.time.strftime("%m/%d/%Y %I:%M %p")
-            },
-            'sender': {
-                'userID': sender.id,
-                'username': sender.username
-            }
-        }))
+        self.send(json.dumps(event))
     def onLeave(self,event):
         self.send(json.dumps(event))
     def onJoin(self,event):
@@ -165,7 +135,7 @@ class join(WebsocketConsumer):
         group=Group.objects.get(id=groupID)
         if(self.user in group.members.all()):
             if(group.membershipTo(self.user)=='pending'):
-                joinRequests=Message.objects.filter(sender=self.user,group__id=groupID,messageType='joinRequest').order_by('-time')
+                joinRequests=Message.objects.filter(sender=self.user,group__id=groupID,messageType='joinRequest').order_by('-time').first()
                 async_to_sync(self.channel_layer.group_send)(
                     groupID,
                     {
@@ -173,8 +143,16 @@ class join(WebsocketConsumer):
                         'location':'messageBoard',
                         'action':'delete',
                         'messageType':'joinRequest',
-                        'sender':self.user,
-                        'message':joinRequests.first()
+                        'sender': {
+                            'userID': self.user.id,
+                            'username': self.user.username,
+                            'image': self.user.profileImage.url
+                        },
+                        'message': {
+                            'messageID': joinRequests.id,
+                            'content': joinRequests.content,
+                            'time': joinRequests.time.strftime("%m/%d/%Y %I:%M %p")
+                        }
                     }
                 )
                 joinRequests.delete()
@@ -212,8 +190,16 @@ class join(WebsocketConsumer):
                             'location': 'messageBoard',
                             'action': 'add',
                             'messageType': joinMessage.messageType,
-                            'sender': self.user,
-                            'message': joinMessage
+                            'sender': {
+                                'userID': self.user.id,
+                                'username': self.user.username,
+                                'image': self.user.profileImage.url
+                            },
+                            'message': {
+                                'messageID': joinMessage.id,
+                                'content': joinMessage.content,
+                                'time': joinMessage.time.strftime("%m/%d/%Y %I:%M %p")
+                            },
                         }
                     )
                     self.send(json.dumps({'groupID':groupID,'status':'pending'}))
@@ -226,7 +212,8 @@ class join(WebsocketConsumer):
                             'action':'add',
                             'user':{
                                 'userID': self.user.id,
-                                'username': self.user.username
+                                'username': self.user.username,
+                                'image':self.user.profileImage.url
                             }
                         }
                     )

@@ -7,11 +7,12 @@ import re,os
 
 
 class User(AbstractUser):
-    profileImage=models.ImageField(upload_to='group/static/group/profilePicture',validators=[validate_image_file_extension])
+    profileImage=models.ImageField(
+        upload_to=os.path.join('profilePicture',os.environ.get('DEVELOPMENT','production')),
+        validators=[validate_image_file_extension]
+    )
 
     def setImage(self,imageFile):
-        if(self.profileImage):
-            os.remove(self.profileImage.path)
         imageFile.name = re.sub(r".+(?=\.)", str(self.id), imageFile.name)
         self.profileImage=imageFile
 

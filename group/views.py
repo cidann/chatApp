@@ -152,7 +152,8 @@ def messages(request):
                         },
                         'sender':{
                             'userID':message.sender.id,
-                            'username':message.sender.username
+                            'username':message.sender.username,
+                            'image':message.sender.profileImage.url
                         }
                     })
                 return api

@@ -83,7 +83,7 @@
     </script>
     {%if request.path == '/personal'%}
       <div id="profile">
-        <div class="memberLeft"><img class="profilePicture" src="{%static 'group/profilePicture/'%}{{profile.id}}.PNG"></div>
+        <div class="memberLeft"><img class="profilePicture" src="{{profile.profileImage.url}}" alt="no image"></div>
         <div class="memberRight">{{profile.username}}</div>
       </div>
       <div id="profileInfo">

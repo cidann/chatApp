@@ -13,9 +13,6 @@
                         window.location='{%url "search"%}?'+new URLSearchParams({'filter':search.value})
                     }
                 }
-                document.querySelectorAll('.profilePicture').forEach(element => {
-                    element.src+=`?${Date.now()}`
-                });
             })
         </script>
         {%block import%}
@@ -26,7 +23,7 @@
             <div id="sidebar">
                 {%if user.is_authenticated%}
                 <a href="{%url 'personal'%}?userID={{user.id}}" id="home">
-                    <div class="memberLeft"><img class="profilePicture" src="{%static 'group/profilePicture/'%}{{user.id}}.PNG"></div>
+                    <div class="memberLeft"><img class="profilePicture" src="{{user.profileImage.url}}"></div>
                     <div class="memberRight">{{user.username}}</div>
                 </a>
                 <hr>
