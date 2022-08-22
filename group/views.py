@@ -1,5 +1,6 @@
 import json
 import dotenv
+import requests
 dotenv.load_dotenv()
 import re,os
 from django.shortcuts import render
@@ -46,9 +47,24 @@ def register(request):
         # Ensure password matches confirmation
         password = request.POST["password"]
         confirmation = request.POST["confirmation"]
-        if password != confirmation:
+        #recaptcha confirmation
+        reCaptchaResponse=request.POST.get('g-recaptcha-response')
+        reCaptchaParams={
+            'secret':os.environ.get('reCAPTCHA_SECRET_KEY'),
+            'response':reCaptchaResponse
+        }
+        reCaptchaVerify=requests.post(
+            'https://www.google.com/recaptcha/api/siteverify',
+            data=reCaptchaParams
+        )
+        successfulReCaptcha=json.loads(reCaptchaVerify.text).get('success')
+        if password != confirmation or not successfulReCaptcha:
+            if(password!=confirmation):
+                message="Passwords must match."
+            elif(not successfulReCaptcha):
+                message="Failed to verify reCaptcha"
             return render(request, "group/register.html", {
-                "message": "Passwords must match.",
+                "message": message,
                 'site_key':os.environ.get('reCAPTCHA_SITE_KEY')
             })
 
