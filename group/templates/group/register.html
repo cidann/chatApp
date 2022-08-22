@@ -1,7 +1,7 @@
 {% extends "group/layout.html" %}
 
 {% block body %}
-
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <h2>Register</h2>
 
     {% if message %}
@@ -26,6 +26,7 @@
             <input type="file" accept="image/*" class="form-control" id="profileImage" name="profileImage">
         </div>
         <input class="btn btn-primary" type="submit" value="Register">
+        <div class="g-recaptcha" data-sitekey="{{site_key}}"></div>
     </form>
 
     Already have an account? <a href="{% url 'login' %}">Log In here.</a>

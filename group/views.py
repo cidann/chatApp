@@ -1,5 +1,7 @@
 import json
-import re
+import dotenv
+dotenv.load_dotenv()
+import re,os
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseNotFound, JsonResponse
 from django.urls import reverse
@@ -46,7 +48,8 @@ def register(request):
         confirmation = request.POST["confirmation"]
         if password != confirmation:
             return render(request, "group/register.html", {
-                "message": "Passwords must match."
+                "message": "Passwords must match.",
+                'site_key':os.environ.get('reCAPTCHA_SITE_KEY')
             })
 
         # Attempt to create new user
@@ -54,7 +57,8 @@ def register(request):
             user = User.objects.create_user(username, email, password)
         except IntegrityError:
             return render(request, "group/register.html", {
-                "message": "Username already taken."
+                "message": "Username already taken.",
+                'site_key':os.environ.get('reCAPTCHA_SITE_KEY')
             })
         profileImage = request.FILES.get('profileImage')
         if(profileImage):
@@ -64,7 +68,7 @@ def register(request):
         login(request, user)
         return HttpResponseRedirect(reverse("index"))
     else:
-        return render(request, "group/register.html")
+        return render(request, "group/register.html",{'site_key':os.environ.get('reCAPTCHA_SITE_KEY')})
 
 def index(request):
     return render(request,'group/index.html',{'all':Group.objects.all()})
@@ -104,8 +108,6 @@ def create(request):
         if(Group.objects.filter(name=name)):
             return render(request, 'group/create.html',{'message':'group name already exist'})
         description=postParam.get('description')
-        backgroundEnabled=postParam.get('backgroundCheckBox','off')
-        background=postParam.get('background')
         passwordEnabled=postParam.get('passwordCheckBox','off')
         password=postParam.get('password')
         private=postParam.get('privateCheckBox','off')
@@ -113,8 +115,6 @@ def create(request):
         group=Group(
             name=name,
             description=description,
-            backgroundEnabled=backgroundEnabled,
-            background=background,
             passwordEnabled=passwordEnabled,
             password=password,
             private=private,
@@ -170,8 +170,6 @@ def modifySetting(request,groupID):
         data=json.loads(request.body)
         group.name=data.get('name')
         group.description=data.get('description')
-        group.backgroundEnabled=data.get('backgroundCheckBox','off')
-        group.background=data.get('background')
         group.private=data.get('privateCheckBox','off')
         group.manual=data.get('manualCheckBox','off')
         group.passwordEnabled=data.get('passwordCheckBox','off')

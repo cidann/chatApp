@@ -180,8 +180,6 @@
                 groupManager.onclick=runAnimation;
                 managed.onanimationend=expandDown;
             
-                let backgroundCheckBox=document.querySelector('#backgroundCheckBox')
-                backgroundCheckBox.onchange=runAnimation;
 
                 let newPasswordCheckBox=document.querySelector('#newPasswordCheckBox');
                 newPasswordCheckBox.onclick=runAnimation;
@@ -191,9 +189,6 @@
                     let data={};
                     data.name=document.querySelector('#name').value;
                     data.description=document.querySelector('#description').value;
-                    if(backgroundCheckBox.checked)
-                        data.backgroundCheckBox='on';
-                    data.background=document.querySelector('#background').value;
                     if(document.querySelector('#privateCheckBox').checked)
                         data.privateCheckBox='on';
                     if(document.querySelector('#manualCheckBox').checked)
@@ -278,11 +273,6 @@
                         <strong>Description</strong>
                         <textarea id="description" class="form-control description" rows="5">{{group.description}}</textarea>
                     </div>    
-                    <div class="mb-3">
-                        <strong>Group Background</strong>
-                        <input id='backgroundCheckBox' class="form-check-input" type="checkbox" name="backgroundCheckBox" autocomplete="off">
-                        <div class="show-down-40px" style="overflow:hidden;"><input id="background" class="form-control" placeholder="Group background url" name="background" value="{%if group.background%}{{group.background}}{%endif%}"></div>
-                    </div>
                     <div class="mb-3">
                         <strong>Private</strong>
                             {%if group.private == 'on'%}

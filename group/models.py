@@ -32,8 +32,6 @@ class User(AbstractUser):
 class Group(models.Model):
     name=models.TextField()
     description=models.TextField(blank=True,null=True)
-    backgroundEnabled=models.TextField(default='off')
-    background=models.URLField(blank=True,null=True)
     passwordEnabled=models.TextField(default='off')
     password = models.TextField(blank=True,null=True)
     private=models.TextField(blank=True)
